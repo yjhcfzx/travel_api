@@ -1,0 +1,12 @@
+
+./build
+/public/upload
+/public/img/upload/full
+/public/img/upload/thumbnail
+/config
+/themes
+/wechat
+/application/config/*
+/public/img/upload/*
+*.config
+.project
