@@ -7,7 +7,8 @@ if ( ! function_exists('my_process_db_request'))
     	$CI =& get_instance();
     	$type_default_mapping = array(
     			'int' => 0,
-    			'string'=> ''
+    			'string'=> '',
+                        'date'=>  strtotime(date('Y-m-d')),
     	);
     	if($target){
     		$request = array();

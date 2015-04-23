@@ -10,3 +10,4 @@
 /public/img/upload/*
 *.config
 .project
+/nbproject/private/
