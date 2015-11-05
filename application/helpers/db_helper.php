@@ -56,7 +56,7 @@ if ( ! function_exists('my_process_db_request'))
 		    			}
 		    			if($key == 'clientid' || $key == 'client_id')
 		    			{
-		    				$request[$key] =  $CI->session->userdata('client_id');
+		    				//$request[$key] =  $CI->session->userdata('client_id');
 		    			}
 		    			
 		    }

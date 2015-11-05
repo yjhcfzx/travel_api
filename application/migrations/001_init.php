@@ -10,7 +10,7 @@ class Migration_Init extends CI_Migration {
 		$this->dbforge->add_field(array(
 			'id' => array(
 				'type' => 'INT',
-				'constraint' => 5,
+				'constraint' => 10,
 				'unsigned' => TRUE,
 				'auto_increment' => TRUE
 			),
@@ -22,13 +22,118 @@ class Migration_Init extends CI_Migration {
 				'type' => 'TEXT',
 				'null' => TRUE,
 			),
+                        'uid' => array(
+				'type' => 'INT',
+				'constraint' => 10,
+				'unsigned' => TRUE,
+
+			),
+                         'status' => array(
+				'type' => 'TINYINT',
+				'constraint' => 1,
+				'unsigned' => TRUE,
+                                'default'=>1, //0 pending 1 published
+
+			),
+                       'travle_time' => array(
+				'type' => 'DATE',
+			),
+                       'created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP',
 		));
                 $this->dbforge->add_key('id',true);
 		$this->dbforge->create_table('posts');
+                
+                $this->dbforge->add_field(array(
+			'id' => array(
+				'type' => 'INT',
+				'constraint' => 10,
+				'unsigned' => TRUE,
+				'auto_increment' => TRUE
+			),
+			'name' => array(
+				'type' => 'VARCHAR',
+				'constraint' => '100',
+			),
+			'gender' => array(
+				'type' => 'CHAR',
+                                'constraint' => '10',
+				'null' => TRUE,
+			),
+                       'email' => array(
+				'type' => 'VARCHAR',
+				'constraint' => '100',
+                                'default'=>''
+			),
+                        'phone' => array(
+				'type' => 'VARCHAR',
+				'constraint' => '100',
+                                'default'=>''
+			),
+                        'password' => array(
+				'type' => 'VARCHAR',
+				'constraint' => '60',
+			),
+                         'status' => array(
+				'type' => 'TINYINT',
+				'constraint' => 1,
+				'unsigned' => TRUE,
+                                'default'=>1, //0 pending 1 published
+
+			),
+                       
+                       'created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP',
+		));
+                $this->dbforge->add_key('id',true);
+		$this->dbforge->create_table('users');
+                
+                
+                $this->dbforge->add_field(array(
+			'id' => array(
+				'type' => 'INT',
+				'constraint' => 10,
+				'unsigned' => TRUE,
+				'auto_increment' => TRUE
+			),
+			
+                        'uid' => array(
+				'type' => 'INT',
+				'constraint' => 10,
+				'unsigned' => TRUE,
+
+			),
+                     'role_id' => array(
+				'type' => 'INT',
+				'constraint' => 10,
+				'unsigned' => TRUE,
+
+			),
+                         'status' => array(
+				'type' => 'TINYINT',
+				'constraint' => 1,
+				'unsigned' => TRUE,
+                                'default'=>1, //0 pending 1 published
+
+			),
+                      
+                       'created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP',
+		));
+                $this->dbforge->add_key('id',true);
+		$this->dbforge->create_table('user_role');
+                
+                $user = array(
+                    'phone' => '18817209480' ,
+                    'name' => 'tester' ,
+                    'password' => 'abc'
+                );
+
+                $this->db->insert('users', $user); 
+                $user_id = $this->db->insert_id();
 	}
 
 	public function down()
 	{
 		$this->dbforge->drop_table('posts');
+                $this->dbforge->drop_table('users');
+                $this->dbforge->drop_table('user_role');
 	}
 }

@@ -17,14 +17,9 @@ class My_model extends CI_Model {
 	
 	protected function getUserRoles($uid)
 	{
-		$string = "SELECT r.*, e.name as entity_name FROM user_role r LEFT JOIN
-				entity e
-				ON 
-				
-					(r.entity_type='entity' AND r.entity_id = e.id )
-
-				
-		WHERE r.user_id = ? AND r.is_deleted = 0  AND e.is_deleted = 0";
+		$string = "SELECT r.* FROM user_role r
+					
+		WHERE r.uid = ? AND r.status = 1 ";
 
 		$query = $this->db->query($string, array($uid));
 		

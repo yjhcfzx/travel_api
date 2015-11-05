@@ -1293,7 +1293,7 @@ abstract class REST_Controller extends CI_Controller
      * @return boolean
      */
     protected function _check_login($username = '', $password = false)
-    {return true;
+    {
         if (empty($username)) {
             return false;
         }
@@ -1541,29 +1541,31 @@ abstract class REST_Controller extends CI_Controller
     protected function my_custom_auth($username,$password){
     	
 	    if($username && $password){
-	    	$client_id = 0;
-	    	//$str = "SELECT * FROM client WHERE username = ? AND password=? AND is_deleted=0 AND status='active' LIMIT 1";
-	    	$query = $this->rest->db->get_where('client', 
-	    			array(
-	    					'username'=>$username,
-	    					'password'=>$password,
-	    					//'is_deleted'=>0,
-	    					//'status'=>'active'
-	    			));
-	    	
-	    	//$query = $this->rest->db->query($str, array($username,$password));
-	    	//echo $this->rest->db->last_query();
-	    	
-		    foreach ($query->result() as $row)
-			{
-			    $client_id =  $row->id;
-			    break;
-			}
-	    	$this->session->set_userdata('client_id', $client_id);
-	    	if(!$client_id)
-	    	{
-	    		return false;
-	    	}
+//	    	$client_id = 0;
+//	    	$query = $this->rest->db->get_where('client', 
+//	    			array(
+//	    					'username'=>$username,
+//	    					'password'=>$password,
+//	    					//'is_deleted'=>0,
+//	    					//'status'=>'active'
+//	    			));
+//	    	
+//	    	//$query = $this->rest->db->query($str, array($username,$password));
+//	    	//echo $this->rest->db->last_query();
+//	    	
+//		    foreach ($query->result() as $row)
+//			{
+//			    $client_id =  $row->id;
+//			    break;
+//			}
+//	    	$this->session->set_userdata('client_id', $client_id);
+//	    	if(!$client_id)
+//	    	{
+//	    		return false;
+//	    	}
+                if($username != config_item('api_username') ||$password != config_item('api_password')){
+                    return false;
+                }
 	    	return true;
 	    }
 	    else{

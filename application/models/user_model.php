@@ -54,15 +54,15 @@ class user_model extends My_Model {
   
 	function login($username, $password)
 	{
-		$client_id = $this->client_id;
-		$string = "SELECT * FROM user u 
-		WHERE u.password= ? AND u.is_deleted= 0 AND (u.phone = ? OR u.email=?) AND clientid = ? LIMIT 1";
+
+		$string = "SELECT * FROM users u 
+		WHERE u.password= ? AND u.status = 1 AND (u.phone = ? OR u.email=?)  LIMIT 1";
 		//$query = $this->db->get_where('user', array('phone' => $username,'password' => $password));
 		/* $query = $this->db->select("*")
 		->from("user")
 		->where($where); */
 	//var_dump($string,$password,$username, $client_id);die;
-		$query = $this->db->query($string, array($password,$username,$username, $client_id));
+		$query = $this->db->query($string, array($password,$username,$username));
 		
 		if($query && $query->result()){
 			foreach ($query->result() as $row)
