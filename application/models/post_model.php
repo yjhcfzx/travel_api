@@ -10,11 +10,24 @@ class post_model extends My_Model {
 			//'required'=>true,
 			'type'=>'int'		
 			),
-			'name' => array(
+                     'uid' => array(
+			'default'=> 0,
+			//'required'=>true,
+			'type'=>'int'		
+			),
+			'title' => array(
 			'required'=>true,
 			'type'=>'string'		
 			),
-			
+            
+                        'content' => array(
+			'required'=>true,
+			'type'=>'string'		
+			),
+			'travle_time' => array(
+			'required'=>true,
+			'type'=>'date'		
+			),
 			'status'=> array(
 					'type'=>'int',
 					'default' => 1
@@ -30,7 +43,7 @@ class post_model extends My_Model {
 	function getList($param = null)
 	{
 		$user_id = isset($param['user_id']) ? $param['user_id'] : 0;
-		$str = "SELECT i.* FROM inquiry i WHERE status = 1 ORDER BY weight DESC,id DESC" ; 
+		$str = "SELECT i.* FROM posts i WHERE status = 1 ORDER BY id DESC" ; 
 		/* " p LEFT JOIN user_role r
 				ON p.entity_id = r.entity_id AND r.entity_type = 'entity' AND r.is_deleted = 0 AND
 				p.is_deleted = 0
@@ -198,6 +211,7 @@ class post_model extends My_Model {
 		$request = my_process_db_request($obj, $this->data, false);
 		
 		$request['id'] = null;
+
 		/* $maxid = 0;
 		$row = $this->db->query('SELECT MAX(id) AS `maxid` FROM ' . $this->main_table)->row();
 		if ($row) {
@@ -207,59 +221,9 @@ class post_model extends My_Model {
 		
 		$request['weight'] = $maxid; */
 		
-		$this->db->insert('inquiry', $request);
+		$this->db->insert('posts', $request);
 		$id = $this->db->insert_id();
-		if(isset($obj['questions']))
-		{
-			$ques_arr = array();
-			$questions = explode('###', $obj['questions']);
-			foreach ($questions as $question)
-			{
-				
-				$ques_arr[] = array(
-						'question'=>$question,
-						'inquiry_id'=>$id,
-						'status'=>1
-						
-				);
-			}
-
-			if(isset($obj['greetings']))
-			{
-				$greeting_arr = array();
-				$greetings = explode('###', $obj['greetings']);
-				foreach ($greetings as $greeting)
-				{
-			
-					$greeting_arr[] = array(
-							'content'=>$greeting,
-							'inquiry_id'=>$id,
-							'status'=>1
-			
-					);
-				}
-			}
-			$this->db->insert_batch('inquiry_question', $ques_arr);
-			$this->db->insert_batch('inquiry_greeting', $greeting_arr);
-		
-		}
-		
-		if(isset($obj['endings']))
-		{
-			$ending_arr = array();
-			$endings = explode('###', $obj['endings']);
-			foreach ($endings as $ending)
-			{
-					
-				$ending_arr[] = array(
-						'content'=>$ending,
-						'inquiry_id'=>$id,
-						'status'=>1
-							
-				);
-			}
-		}
-		$this->db->insert_batch('inquiry_ending', $ending_arr);
+	
 		return $id;
 		//return $obj;
 	}

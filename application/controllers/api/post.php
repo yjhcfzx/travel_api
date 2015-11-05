@@ -34,7 +34,7 @@ class Post extends REST_Controller
 	function list_get()
 	{
 		
-	   $user_id = $this->get('user_id');
+                $user_id = $this->get('user_id');
 		$item = $this->model->getList(array('user_id'=>$user_id));
 		if($item)
 		{
@@ -106,7 +106,7 @@ class Post extends REST_Controller
     	 {
     	 $this->response(NULL, 400);
     	} */
-    	 
+      
     	$item = $this->model->createDetail($request);
     
     	if($item)
