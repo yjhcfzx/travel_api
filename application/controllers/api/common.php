@@ -15,7 +15,7 @@
 // This can be removed if you use __autoload() in config.php
 require(APPPATH.'/libraries/REST_Controller.php');
 
-class Status extends REST_Controller
+class Common extends REST_Controller
 {
 	protected $methods = array(
 		'index_put' => array('level' => 10, 'limit' => 10),
@@ -28,14 +28,14 @@ class Status extends REST_Controller
 	{
 		// Call the Model constructor
 		parent::__construct();
-		$this->load->model('status_model','model');
+		$this->load->model('common_model','model');
 	}
 	
-	function list_get()
+	function destination_get()
 	{
 		
-	   $user_id = $this->get('user_id');
-		$item = $this->model->getList(array('user_id'=>$user_id));
+                $user_id = $this->get('user_id');
+		$item = $this->model->getDestinationList(array('user_id'=>$user_id));
 		if($item)
 		{
 			$this->response($item, 200); // 200 being the HTTP response code
@@ -106,7 +106,7 @@ class Status extends REST_Controller
     	 {
     	 $this->response(NULL, 400);
     	} */
-    	 
+      
     	$item = $this->model->createDetail($request);
     
     	if($item)
@@ -144,25 +144,28 @@ class Status extends REST_Controller
     
     public function weight_put($idname,$idval)
     {
-    
+	
     	$request = $this->put();
     	$request['id'] = $idval;
     
     	/* if(!$this->put('id'))
     	 {
     	 $this->response(NULL, 400);
-    	 } */
-    
+    	} */
+    	 
     	$item = $this->model->updateWeight($request);
     	//$item = $request;
     	if($item)
     	{
     		$this->response($item, 200); // 200 being the HTTP response code
     	}
-    
+    	 
     	else
     	{
     		$this->response(array('error' => 'Item could not be found'), 404);
     	}
     }
+    
+    
+	
 }

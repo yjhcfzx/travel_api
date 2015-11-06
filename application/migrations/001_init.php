@@ -120,6 +120,105 @@ class Migration_Init extends CI_Migration {
                 $this->dbforge->add_key('id',true);
 		$this->dbforge->create_table('user_role');
                 
+                 
+                $this->dbforge->add_field(array(
+			'id' => array(
+				'type' => 'INT',
+				'constraint' => 10,
+				'unsigned' => TRUE,
+				'auto_increment' => TRUE
+			),
+			
+                        'name' => array(
+				'type' => 'VARCHAR',
+				'constraint' => 500,
+				'default' => '',
+
+			),
+                    
+                         'status' => array(
+				'type' => 'TINYINT',
+				'constraint' => 1,
+				'unsigned' => TRUE,
+                                'default'=>1, //0 pending 1 published
+
+			),
+                      
+                       'created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP',
+		));
+                $this->dbforge->add_key('id',true);
+		$this->dbforge->create_table('events');
+                
+                
+                $this->dbforge->add_field(array(
+			'id' => array(
+				'type' => 'INT',
+				'constraint' => 10,
+				'unsigned' => TRUE,
+				'auto_increment' => TRUE
+			),
+			
+                        'post_id' => array(
+				'type' => 'INT',
+				'constraint' => 10,
+				'unsigned' => TRUE,
+
+			),
+                     'event_id' => array(
+				'type' => 'INT',
+				'constraint' => 10,
+				'unsigned' => TRUE,
+
+			),
+                         'status' => array(
+				'type' => 'TINYINT',
+				'constraint' => 1,
+				'unsigned' => TRUE,
+                                'default'=>1, //0 pending 1 published
+
+			),
+                      
+                       'created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP',
+		));
+                $this->dbforge->add_key('id',true);
+		$this->dbforge->create_table('post_event');
+                
+                //post destination mapping
+                $this->dbforge->add_field(array(
+			'id' => array(
+				'type' => 'INT',
+				'constraint' => 10,
+				'unsigned' => TRUE,
+				'auto_increment' => TRUE
+			),
+			
+                        'destination_id' => array(
+				'type' => 'INT',
+				'constraint' => 10,
+				'unsigned' => TRUE,
+
+			),
+                     'post_id' => array(
+				'type' => 'INT',
+				'constraint' => 10,
+				'unsigned' => TRUE,
+
+			),
+                         'status' => array(
+				'type' => 'TINYINT',
+				'constraint' => 1,
+				'unsigned' => TRUE,
+                                'default'=>1, //0 pending 1 published
+
+			),
+                      
+                       'created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP',
+		));
+                $this->dbforge->add_key('id',true);
+		$this->dbforge->create_table('post_destination');
+                
+                //sample data
+                //user
                 $user = array(
                     'phone' => '18817209480' ,
                     'name' => 'tester' ,
@@ -135,5 +234,8 @@ class Migration_Init extends CI_Migration {
 		$this->dbforge->drop_table('posts');
                 $this->dbforge->drop_table('users');
                 $this->dbforge->drop_table('user_role');
+                $this->dbforge->drop_table('events');
+                 $this->dbforge->drop_table('post_event');
+                 $this->dbforge->drop_table('post_destination');
 	}
 }

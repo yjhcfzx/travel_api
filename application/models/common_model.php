@@ -1,8 +1,8 @@
 <?php
 require(APPPATH.'/models/My_model.php');
-class status_model extends My_Model {
+class Common_model extends My_Model {
 
-	var $main_table   = 'shipping_status';
+	var $main_table   = 'inquiry';
 	var $content = '';
 	var $data    = array(
 			'id' => array(
@@ -10,11 +10,24 @@ class status_model extends My_Model {
 			//'required'=>true,
 			'type'=>'int'		
 			),
-			'name' => array(
+                     'uid' => array(
+			'default'=> 0,
+			//'required'=>true,
+			'type'=>'int'		
+			),
+			'title' => array(
 			'required'=>true,
 			'type'=>'string'		
 			),
-			
+            
+                        'content' => array(
+			'required'=>true,
+			'type'=>'string'		
+			),
+			'travle_time' => array(
+			'required'=>true,
+			'type'=>'date'		
+			),
 			'status'=> array(
 					'type'=>'int',
 					'default' => 1
@@ -27,10 +40,10 @@ class status_model extends My_Model {
 		parent::__construct();
 	}
 	
-	function getList($param = null)
+	function getDestinationList($param = null)
 	{
 		$user_id = isset($param['user_id']) ? $param['user_id'] : 0;
-		$str = "SELECT i.* FROM " . $this->main_table . " i WHERE status = 1 ORDER BY weight DESC,  id DESC" ; 
+		$str = "SELECT i.* FROM destination i" ; 
 		/* " p LEFT JOIN user_role r
 				ON p.entity_id = r.entity_id AND r.entity_type = 'entity' AND r.is_deleted = 0 AND
 				p.is_deleted = 0
@@ -75,9 +88,9 @@ class status_model extends My_Model {
 		$rst['questions'] = array();
 		$rst['greetings'] = array();
 		$rst['endings'] = array();
-		$str = "SELECT q.* FROM shipping_status i
-		 LEFT JOIN status_question q
-		 ON q.shipping_status_id = i.id AND q.status = 1 
+		$str = "SELECT q.* FROM inquiry i
+		 LEFT JOIN inquiry_question q
+		 ON q.inquiry_id = i.id AND q.status = 1 
 		
 		 WHERE i.status = 1  AND i.id = ?"; 
 		
@@ -88,8 +101,8 @@ class status_model extends My_Model {
 			$rst['questions'][] = $row;
 		}
 		
-		$str = "SELECT g.*  FROM shipping_status i
-		 LEFT JOIN status_greeting g ON g.shipping_status_id = i.id AND g.status = 1
+		$str = "SELECT g.*  FROM inquiry i
+		 LEFT JOIN inquiry_greeting g ON g.inquiry_id = i.id AND g.status = 1
 		 WHERE i.status = 1 AND i.id = ?";
 		
 		$query = $this->db->query($str, array($id));
@@ -100,8 +113,8 @@ class status_model extends My_Model {
 		}
 		
 
-		$str = "SELECT g.*  FROM shipping_status i
-		 LEFT JOIN status_ending g ON g.shipping_status_id = i.id AND g.status = 1
+		$str = "SELECT g.*  FROM inquiry i
+		 LEFT JOIN inquiry_ending g ON g.inquiry_id = i.id AND g.status = 1
 		 WHERE i.status = 1 AND i.id = ?";
 		
 		$query = $this->db->query($str, array($id));
@@ -122,10 +135,10 @@ class status_model extends My_Model {
 		
 		$id = $request['id'];
 		$remove_request = array('status'=>2);
-		$this->db->update('status_greeting', $remove_request, array('shipping_status_id' => $id));
+		$this->db->update('inquiry_greeting', $remove_request, array('inquiry_id' => $id));
 		
-		$this->db->update('status_ending', $remove_request, array('shipping_status_id' => $id));
-		$this->db->update('status_question', $remove_request, array('shipping_status_id' => $id));
+		$this->db->update('inquiry_ending', $remove_request, array('inquiry_id' => $id));
+		$this->db->update('inquiry_question', $remove_request, array('inquiry_id' => $id));
 		
 		if(isset($obj['questions']))
 		{
@@ -138,7 +151,7 @@ class status_model extends My_Model {
 				}
 				$ques_arr[] = array(
 						'question'=>$question,
-						'shipping_status_id'=>$id,
+						'inquiry_id'=>$id,
 						'status'=>1
 		
 				);
@@ -155,14 +168,14 @@ class status_model extends My_Model {
 					}
 					$greeting_arr[] = array(
 							'content'=>$greeting,
-							'shipping_status_id'=>$id,
+							'inquiry_id'=>$id,
 							'status'=>1
 								
 					);
 				}
 			}
-			$this->db->insert_batch('status_question', $ques_arr);
-			$this->db->insert_batch('status_greeting', $greeting_arr);
+			$this->db->insert_batch('inquiry_question', $ques_arr);
+			$this->db->insert_batch('inquiry_greeting', $greeting_arr);
 		
 		}
 		
@@ -177,12 +190,12 @@ class status_model extends My_Model {
 				}	
 				$ending_arr[] = array(
 						'content'=>$ending,
-						'shipping_status_id'=>$id,
+						'inquiry_id'=>$id,
 						'status'=>1
 							
 				);
 			}
-			$this->db->insert_batch('status_ending', $ending_arr);
+			$this->db->insert_batch('inquiry_ending', $ending_arr);
 		}
 
 		
@@ -196,61 +209,21 @@ class status_model extends My_Model {
 	{
 		//$obj = parse_str($obj);
 		$request = my_process_db_request($obj, $this->data, false);
-		//return $request;
+		
 		$request['id'] = null;
-		$this->db->insert($this->main_table, $request);
-		$id = $this->db->insert_id();
-		if(isset($obj['questions']))
-		{
-			$ques_arr = array();
-			$questions = explode('###', $obj['questions']);
-			foreach ($questions as $question)
-			{
-				
-				$ques_arr[] = array(
-						'question'=>$question,
-						'shipping_status_id'=>$id,
-						'status'=>1
-						
-				);
-			}
 
-			if(isset($obj['greetings']))
-			{
-				$greeting_arr = array();
-				$greetings = explode('###', $obj['greetings']);
-				foreach ($greetings as $greeting)
-				{
-			
-					$greeting_arr[] = array(
-							'content'=>$greeting,
-							'shipping_status_id'=>$id,
-							'status'=>1
-			
-					);
-				}
-			}
-			$this->db->insert_batch('status_question', $ques_arr);
-			$this->db->insert_batch('status_greeting', $greeting_arr);
-		
+		/* $maxid = 0;
+		$row = $this->db->query('SELECT MAX(id) AS `maxid` FROM ' . $this->main_table)->row();
+		if ($row) {
+			$maxid = $row->maxid;
 		}
+		$maxid++;
 		
-		if(isset($obj['endings']))
-		{
-			$ending_arr = array();
-			$endings = explode('###', $obj['endings']);
-			foreach ($endings as $ending)
-			{
-					
-				$ending_arr[] = array(
-						'content'=>$ending,
-						'shipping_status_id'=>$id,
-						'status'=>1
-							
-				);
-			}
-		}
-		$this->db->insert_batch('status_ending', $ending_arr);
+		$request['weight'] = $maxid; */
+		
+		$this->db->insert('posts', $request);
+		$id = $this->db->insert_id();
+	
 		return $id;
 		//return $obj;
 	}
@@ -267,5 +240,8 @@ class status_model extends My_Model {
 		return $id;
 		
 	}
+	
+	
+	
 }
 ?>
