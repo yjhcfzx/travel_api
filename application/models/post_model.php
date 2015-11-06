@@ -246,6 +246,29 @@ class post_model extends My_Model {
                     }
                     $this->db->insert_batch('post_destination', $destinations);
                 }
+                
+                if($obj['special_event']){
+                    $event = explode(',', $obj['special_event']);
+                    $events = array();
+                    foreach($event as $item){
+                        if(is_numeric($item)){
+                            $events[] = array(
+                                'post_id'=> $id,
+                                'event_id'=>$item
+                            );
+                        }
+                        else{
+                             $this->db->insert('events', array('name'=>$item));
+                             $item_id = $this->db->insert_id();
+                             $events[] = array(
+                                'post_id'=> $id,
+                                'event_id'=>$item_id
+                            );
+                        }
+                    }
+                    $this->db->insert_batch('post_event', $destinations);
+                }
+                
 		return $id;
 		//return $obj;
 	}

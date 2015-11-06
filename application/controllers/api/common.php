@@ -47,6 +47,22 @@ class Common extends REST_Controller
 		}
 	}
 	
+        function event_get()
+	{
+		
+                $user_id = $this->get('user_id');
+		$item = $this->model->getEventList(array('user_id'=>$user_id));
+		if($item)
+		{
+			$this->response($item, 200); // 200 being the HTTP response code
+		}
+	
+		else
+		{
+			$this->response(array('error' => 'Item could not be found'), 404);
+		}
+	}
+        
 	function detail_get()
 	{
 		

@@ -63,7 +63,28 @@ class Common_model extends My_Model {
 		return $resp;
 	}
 	
-
+        function getEventList($param = null)
+	{
+		$user_id = isset($param['user_id']) ? $param['user_id'] : 0;
+		$str = "SELECT i.* FROM events i" ; 
+		/* " p LEFT JOIN user_role r
+				ON p.entity_id = r.entity_id AND r.entity_type = 'entity' AND r.is_deleted = 0 AND
+				p.is_deleted = 0
+				LEFT JOIN entity e ON p.entity_id = e.id
+				WHERE 1=1 "; */
+		if($user_id)
+		{
+			//$str .= "AND r.user_id = ?";
+		}
+		$query = $this->db->query($str);
+		$resp = array();
+		foreach ($query->result() as $row)
+		{
+			$resp[] = $row;
+		}
+		
+		return $resp;
+	}
 	function getDetail($id)
 	{
 		/* if($user_id)
@@ -205,41 +226,9 @@ class Common_model extends My_Model {
 		
 	}
 	
-	function createDetail($obj)
-	{
-		//$obj = parse_str($obj);
-		$request = my_process_db_request($obj, $this->data, false);
-		
-		$request['id'] = null;
-
-		/* $maxid = 0;
-		$row = $this->db->query('SELECT MAX(id) AS `maxid` FROM ' . $this->main_table)->row();
-		if ($row) {
-			$maxid = $row->maxid;
-		}
-		$maxid++;
-		
-		$request['weight'] = $maxid; */
-		
-		$this->db->insert('posts', $request);
-		$id = $this->db->insert_id();
 	
-		return $id;
-		//return $obj;
-	}
 	
-	function deleteDetail($id)
-	{
-		$id = intval($id);
-		$remove_request = array('status'=>2);
-		$this->db->update('inquiry_greeting', $remove_request, array('inquiry_id' => $id));
-		
-		$this->db->update('inquiry_ending', $remove_request, array('inquiry_id' => $id));
-		$this->db->update('inquiry_question', $remove_request, array('inquiry_id' => $id));
-		$this->db->update('inquiry', $remove_request, array('id' => $id));
-		return $id;
-		
-	}
+	
 	
 	
 	
