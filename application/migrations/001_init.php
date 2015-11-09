@@ -43,6 +43,7 @@ class Migration_Init extends CI_Migration {
                 $this->dbforge->add_key('id',true);
 		$this->dbforge->create_table('posts');
                 
+                //users
                 $this->dbforge->add_field(array(
 			'id' => array(
 				'type' => 'INT',
@@ -86,7 +87,7 @@ class Migration_Init extends CI_Migration {
                 $this->dbforge->add_key('id',true);
 		$this->dbforge->create_table('users');
                 
-                
+                //user role
                 $this->dbforge->add_field(array(
 			'id' => array(
 				'type' => 'INT',
@@ -120,7 +121,7 @@ class Migration_Init extends CI_Migration {
                 $this->dbforge->add_key('id',true);
 		$this->dbforge->create_table('user_role');
                 
-                 
+                 //events
                 $this->dbforge->add_field(array(
 			'id' => array(
 				'type' => 'INT',
@@ -216,6 +217,75 @@ class Migration_Init extends CI_Migration {
 		));
                 $this->dbforge->add_key('id',true);
 		$this->dbforge->create_table('post_destination');
+                
+                //resources
+                $this->dbforge->add_field(array(
+			'id' => array(
+				'type' => 'INT',
+				'constraint' => 10,
+				'unsigned' => TRUE,
+				'auto_increment' => TRUE
+			),
+			'title' => array(
+				'type' => 'VARCHAR',
+				'constraint' => '100',
+			),
+			'content' => array(
+				'type' => 'TEXT',
+				'null' => TRUE,
+			),
+                        'uid' => array(
+				'type' => 'INT',
+				'constraint' => 10,
+				'unsigned' => TRUE,
+
+			),
+                         'status' => array(
+				'type' => 'TINYINT',
+				'constraint' => 1,
+				'unsigned' => TRUE,
+                                'default'=>1, //0 pending 1 published
+
+			),
+                       
+                       'created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP',
+		));
+                $this->dbforge->add_key('id',true);
+		$this->dbforge->create_table('resources');
+                
+                 //resource destination mapping
+                $this->dbforge->add_field(array(
+			'id' => array(
+				'type' => 'INT',
+				'constraint' => 10,
+				'unsigned' => TRUE,
+				'auto_increment' => TRUE
+			),
+			
+                        'destination_id' => array(
+				'type' => 'INT',
+				'constraint' => 10,
+				'unsigned' => TRUE,
+
+			),
+                     'resource_id' => array(
+				'type' => 'INT',
+				'constraint' => 10,
+				'unsigned' => TRUE,
+
+			),
+                         'status' => array(
+				'type' => 'TINYINT',
+				'constraint' => 1,
+				'unsigned' => TRUE,
+                                'default'=>1, //0 pending 1 published
+
+			),
+                      
+                       'created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP',
+		));
+                $this->dbforge->add_key('id',true);
+		$this->dbforge->create_table('resource_destination');
                 
                 //sample data
                 //user

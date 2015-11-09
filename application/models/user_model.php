@@ -18,18 +18,16 @@ class user_model extends My_Model {
 					'required'=>true,
 					'type'=>'string'
 			),
+                       'email'=> array(
+					'type'=>'string'
+			),
 			'password'=> array(
 					'type'=>'string'
 			),
-			'clientid'=> array(
-					'type'=>'int'
-			),
-			'birthday'=> array(
-					'type'=>'string'
-			),
-			'is_deleted'=> array(
+			
+			'status'=> array(
 					'type'=>'int',
-					'default' => 0
+					'default' => 1
 			)
 	);
 
@@ -82,8 +80,10 @@ class user_model extends My_Model {
 	{
 		$client_id = $this->client_id;
 		$request = my_process_db_request($obj, $this->data, false);
-		$request['id'] = null;
-		$this->db->insert('user', $request);
+		unset($request['id']) ;
+          
+            $this->db->insert('users', $request);
+                               
 		$uid =  $this->db->insert_id();
 		
 		return $uid;
