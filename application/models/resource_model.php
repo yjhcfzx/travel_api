@@ -46,7 +46,7 @@ class Resource_model extends My_Model {
                     $query = $this->db->query($str, array($user_id));
                 }
                 else{
-                     $str = "SELECT p.*, u.name as author FROM posts p LEFT JOIN users u ON p.uid = u.id WHERE p.status = 1 ORDER BY p.id DESC" ; 
+                     $str = "SELECT p.*, u.name as author FROM {$this->main_table} p LEFT JOIN users u ON p.uid = u.id WHERE p.status = 1 ORDER BY p.id DESC" ; 
                      $query = $this->db->query($str);
                 }
 		/* " p LEFT JOIN user_role r
