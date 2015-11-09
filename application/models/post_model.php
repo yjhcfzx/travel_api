@@ -2,7 +2,7 @@
 require(APPPATH.'/models/My_model.php');
 class post_model extends My_Model {
 
-	var $main_table   = 'inquiry';
+	var $main_table   = 'posts';
 	var $content = '';
 	var $data    = array(
 			'id' => array(
@@ -73,11 +73,14 @@ class post_model extends My_Model {
 		
 		$rst = array();
 		$is_found = false;
-		$query = $this->db->get_where($this->main_table, array('id' => $id,'status'=>1));
+                $str = "SELECT p.*, u.name as author FROM posts p LEFT JOIN users u ON p.uid = u.id WHERE p.status = 1 AND p.id = ?" ; 
+		//$query = $this->db->get_where($this->main_table, array('id' => $id,'status'=>1));
+                $query = $this->db->query($str, array($id));
 		foreach ($query->result() as $row)
-		{	
-			$rst['name'] = $row->name;
-			$rst['id'] = $id;
+		{   
+                     $rst = (array) $row;
+			//$rst['name'] = $row->name;
+			//$rst['id'] = $id;
 			$is_found = true;
 			break;
 		}
@@ -85,45 +88,35 @@ class post_model extends My_Model {
 		{
 			return null;
 		}
-		$rst['questions'] = array();
-		$rst['greetings'] = array();
-		$rst['endings'] = array();
-		$str = "SELECT q.* FROM inquiry i
-		 LEFT JOIN inquiry_question q
-		 ON q.inquiry_id = i.id AND q.status = 1 
+		$rst['special_events'] = array();
+		$rst['destination'] = array();
 		
-		 WHERE i.status = 1  AND i.id = ?"; 
+		$str = "SELECT d.* FROM destination d
+		 LEFT JOIN post_destination p
+		 ON d.id = p.destination_id AND p.status = 1 
 		
-		$query = $this->db->query($str, array($id));
-		
-		foreach ($query->result() as $row)
-		{
-			$rst['questions'][] = $row;
-		}
-		
-		$str = "SELECT g.*  FROM inquiry i
-		 LEFT JOIN inquiry_greeting g ON g.inquiry_id = i.id AND g.status = 1
-		 WHERE i.status = 1 AND i.id = ?";
+		 WHERE p.post_id = ?"; 
 		
 		$query = $this->db->query($str, array($id));
 		
 		foreach ($query->result() as $row)
 		{
-			$rst['greetings'][] = $row;
+			$rst['destination'][] = $row;
 		}
 		
-
-		$str = "SELECT g.*  FROM inquiry i
-		 LEFT JOIN inquiry_ending g ON g.inquiry_id = i.id AND g.status = 1
-		 WHERE i.status = 1 AND i.id = ?";
+		$str = "SELECT e.* FROM events e
+		 LEFT JOIN post_event p
+		 ON e.id = p.event_id AND p.status = 1 
+		
+		 WHERE e.status = 1  AND p.post_id = ?"; 
 		
 		$query = $this->db->query($str, array($id));
 		
 		foreach ($query->result() as $row)
 		{
-			
-			$rst['endings'][] = $row;
+			$rst['special_events'][] = $row;
 		}
+               
 		return $rst;
 	}
 
@@ -266,7 +259,7 @@ class post_model extends My_Model {
                             );
                         }
                     }
-                    $this->db->insert_batch('post_event', $destinations);
+                    $this->db->insert_batch('post_event', $events);
                 }
                 
 		return $id;
