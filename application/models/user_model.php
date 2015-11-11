@@ -2,7 +2,7 @@
 require(APPPATH.'/models/My_model.php');
 class user_model extends My_Model {
 
-	var $main_table   = 'user';
+	var $main_table   = 'users';
 	var $content = '';
 	var $data    = array(
 			'id' => array(
@@ -104,7 +104,7 @@ class user_model extends My_Model {
 	
 	function getDetail($id)
 	{
-		$query = $this->db->get_where('entity', array('id' => $id,'is_deleted'=>0));
+		$query = $this->db->get_where($this->main_table, array('id' => $id,'status'=>1));
 		foreach ($query->result() as $row)
 		{
 			return $row;
