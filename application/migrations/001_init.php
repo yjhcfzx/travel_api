@@ -43,6 +43,42 @@ class Migration_Init extends CI_Migration {
                 $this->dbforge->add_key('id',true);
 		$this->dbforge->create_table('posts');
                 
+                $this->dbforge->add_field(array(
+			'id' => array(
+				'type' => 'INT',
+				'constraint' => 10,
+				'unsigned' => TRUE,
+				'auto_increment' => TRUE
+			),
+			
+			'content' => array(
+				'type' => 'TEXT',
+				'null' => TRUE,
+			),
+                        'uid' => array(
+				'type' => 'INT',
+				'constraint' => 10,
+				'unsigned' => TRUE,
+
+			),
+                        'post_id' => array(
+				'type' => 'INT',
+				'constraint' => 10,
+				'unsigned' => TRUE,
+
+			),
+                         'status' => array(
+				'type' => 'TINYINT',
+				'constraint' => 1,
+				'unsigned' => TRUE,
+                                'default'=>1, //0 pending 1 published
+
+			),
+                      
+                       'created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP',
+		));
+                $this->dbforge->add_key('id',true);
+		$this->dbforge->create_table('comments');
                 //users
                 $this->dbforge->add_field(array(
 			'id' => array(
