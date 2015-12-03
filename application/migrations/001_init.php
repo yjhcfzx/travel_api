@@ -345,5 +345,6 @@ class Migration_Init extends CI_Migration {
                  $this->dbforge->drop_table('post_destination');
                  $this->dbforge->drop_table('resources');
                  $this->dbforge->drop_table('resource_destination');
+                  $this->dbforge->drop_table('comments');
 	}
 }
