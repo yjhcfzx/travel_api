@@ -43,7 +43,8 @@ class post_model extends My_Model {
 	function getList($param = null)
 	{
 		$user_id = isset($param['user_id']) ? $param['user_id'] : 0;
-		$str = "SELECT p.*, u.name as author FROM posts p LEFT JOIN users u ON p.uid = u.id WHERE p.status = 1 ORDER BY p.id DESC" ; 
+		$str = "SELECT p.*, u.name as author, GROUP_CONCAT(d.name SEPARATOR ', ') as destination FROM posts p LEFT JOIN users u ON p.uid = u.id "
+                        . " LEFT JOIN post_destination pd ON p.id = pd.post_id LEFT JOIN destination d ON d.id = pd.destination_id WHERE p.status = 1 GROUP BY p.id ORDER BY p.id DESC" ;  
 		/* " p LEFT JOIN user_role r
 				ON p.entity_id = r.entity_id AND r.entity_type = 'entity' AND r.is_deleted = 0 AND
 				p.is_deleted = 0
