@@ -129,68 +129,54 @@ class post_model extends My_Model {
 		
 		$id = $request['id'];
 		$remove_request = array('status'=>2);
-		$this->db->update('inquiry_greeting', $remove_request, array('inquiry_id' => $id));
+		$this->db->update('post_destination', $remove_request, array('post_id' => $id));
 		
-		$this->db->update('inquiry_ending', $remove_request, array('inquiry_id' => $id));
-		$this->db->update('inquiry_question', $remove_request, array('inquiry_id' => $id));
-		
-		if(isset($obj['questions']))
-		{
-			$ques_arr = array();
-			$questions = explode('###', $obj['questions']);
-			foreach ($questions as $question)
-			{
-				if(empty($question)){
-					continue;
-				}
-				$ques_arr[] = array(
-						'question'=>$question,
-						'inquiry_id'=>$id,
-						'status'=>1
-		
-				);
-			}
-		
-			if(isset($obj['greetings']))
-			{
-				$greeting_arr = array();
-				$greetings = explode('###', $obj['greetings']);
-				foreach ($greetings as $greeting)
-				{
-					if(empty($greeting)){
-					continue;
-					}
-					$greeting_arr[] = array(
-							'content'=>$greeting,
-							'inquiry_id'=>$id,
-							'status'=>1
-								
-					);
-				}
-			}
-			$this->db->insert_batch('inquiry_question', $ques_arr);
-			$this->db->insert_batch('inquiry_greeting', $greeting_arr);
-		
-		}
-		
-		if(isset($obj['endings']))
-		{
-			$ending_arr = array();
-			$endings = explode('###', $obj['endings']);
-			foreach ($endings as $ending)
-			{
-				if(empty($ending)){
-					continue;
-				}	
-				$ending_arr[] = array(
-						'content'=>$ending,
-						'inquiry_id'=>$id,
-						'status'=>1
-							
-				);
-			}
-			$this->db->insert_batch('inquiry_ending', $ending_arr);
-		}
+		$this->db->update('post_event', $remove_request, array('post_id' => $id));
+
+		 if($obj['destination']){
+                    $destination = explode(',', $obj['destination']);
+                    $destinations = array();
+                    foreach($destination as $item){
+                        if(is_numeric($item)){
+                            $destinations[] = array(
+                                'post_id'=> $id,
+                                'destination_id'=>$item
+                            );
+                        }
+                        else{
+                             $this->db->insert('destination', array('name'=>$item));
+                             $item_id = $this->db->insert_id();
+                             $destinations[] = array(
+                                'post_id'=> $id,
+                                'destination_id'=>$item_id
+                            );
+                        }
+                    }
+                    $this->db->insert_batch('post_destination', $destinations);
+                }
+                
+                if($obj['special_event']){
+                    $event = explode(',', $obj['special_event']);
+                    $events = array();
+                    foreach($event as $item){
+                        if(is_numeric($item)){
+                            $events[] = array(
+                                'post_id'=> $id,
+                                'event_id'=>$item
+                            );
+                        }
+                        else{
+                             $this->db->insert('events', array('name'=>$item));
+                             $item_id = $this->db->insert_id();
+                             $events[] = array(
+                                'post_id'=> $id,
+                                'event_id'=>$item_id
+                            );
+                        }
+                    }
+                    $this->db->insert_batch('post_event', $events);
+                }
+                
 
 		
 

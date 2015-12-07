@@ -106,8 +106,14 @@ class Post extends REST_Controller
     	 {
     	 $this->response(NULL, 400);
     	} */
-      
-    	$item = $this->model->createDetail($request);
+       if(isset($request['id']) && $request['id'])
+       {
+           $item = $this->model->updateDetail($request);
+       }
+       else{
+           $item = $this->model->createDetail($request);
+       }
+    	
     
     	if($item)
     	{
