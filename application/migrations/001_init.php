@@ -35,7 +35,10 @@ class Migration_Init extends CI_Migration {
                                 'default'=>1, //0 pending 1 published
 
 			),
-                       'travle_time' => array(
+                       'travle_start_time' => array(
+				'type' => 'DATE',
+			),
+                        'travle_end_time' => array(
 				'type' => 'DATE',
 			),
                        'created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP',

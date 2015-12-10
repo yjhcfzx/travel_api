@@ -24,7 +24,11 @@ class post_model extends My_Model {
 			'required'=>true,
 			'type'=>'string'		
 			),
-			'travle_time' => array(
+			'travle_start_time' => array(
+			'required'=>true,
+			'type'=>'date'		
+			),
+                        'travle_end_time' => array(
 			'required'=>true,
 			'type'=>'date'		
 			),
