@@ -19,7 +19,15 @@ class Migration_Init extends CI_Migration {
 				'constraint' => '100',
 			),
 			'content' => array(
-				'type' => 'TEXT',
+				'type' => 'LONGTEXT',
+				'null' => TRUE,
+			),
+                        'prepare_content' => array(
+				'type' => 'LONGTEXT',
+				'null' => TRUE,
+			),
+                        'travle_tip' => array(
+				'type' => 'LONGTEXT',
 				'null' => TRUE,
 			),
                         'uid' => array(
@@ -257,6 +265,80 @@ class Migration_Init extends CI_Migration {
                 $this->dbforge->add_key('id',true);
 		$this->dbforge->create_table('post_destination');
                 
+                //post itinerary
+                $this->dbforge->add_field(array(
+			'id' => array(
+				'type' => 'INT',
+				'constraint' => 10,
+				'unsigned' => TRUE,
+				'auto_increment' => TRUE
+			),
+			
+                        'post_id' => array(
+				'type' => 'INT',
+				'constraint' => 10,
+				'unsigned' => TRUE,
+
+			),
+                        'content' => array(
+				'type' => 'TEXT',
+				'null' => TRUE,
+			),
+                        'index' => array(
+				'type' => 'INT',
+				'constraint' => 10,
+				'unsigned' => TRUE,			
+			),
+                         'travle_date' => array(
+				'type' => 'DATE',
+			),
+                         'status' => array(
+				'type' => 'TINYINT',
+				'constraint' => 1,
+				'unsigned' => TRUE,
+                                'default'=>1, //0 pending 1 published 2 deleted
+
+			),
+                      
+                       'created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP',
+		));
+                $this->dbforge->add_key('id',true);
+		$this->dbforge->create_table('post_itinerary');
+                
+                // itinerary destination
+                $this->dbforge->add_field(array(
+			'id' => array(
+				'type' => 'INT',
+				'constraint' => 10,
+				'unsigned' => TRUE,
+				'auto_increment' => TRUE
+			),
+			
+                        'destination_id' => array(
+				'type' => 'INT',
+				'constraint' => 10,
+				'unsigned' => TRUE,
+
+			),
+                        'itinerary_id' => array(
+				'type' => 'INT',
+				'constraint' => 10,
+				'unsigned' => TRUE,
+			),
+                       
+                         'status' => array(
+				'type' => 'TINYINT',
+				'constraint' => 1,
+				'unsigned' => TRUE,
+                                'default'=>1, //0 pending 1 published 2 deleted
+
+			),
+                      
+                       'created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP',
+		));
+                $this->dbforge->add_key('id',true);
+		$this->dbforge->create_table('itinerary_destination');
+                
                 //resources
                 $this->dbforge->add_field(array(
 			'id' => array(
@@ -349,5 +431,8 @@ class Migration_Init extends CI_Migration {
                  $this->dbforge->drop_table('resources');
                  $this->dbforge->drop_table('resource_destination');
                   $this->dbforge->drop_table('comments');
+                  $this->dbforge->drop_table('itinerary_destination');
+                   $this->dbforge->drop_table('post_itinerary');
+                  
 	}
 }
