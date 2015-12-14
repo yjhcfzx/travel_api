@@ -121,12 +121,12 @@ class post_model extends My_Model {
             $rst['special_events'][] = $row;
         }
 
-        $str = "SELECT i.*,d.id as did, d.name as dname FROM post_itinerary i
+        $str = "SELECT i.*,GROUP_CONCAT(d.id SEPARATOR ', ')  as did, GROUP_CONCAT(d.name SEPARATOR ', ')  as dname FROM post_itinerary i
 		 LEFT JOIN itinerary_destination dm
 		 ON i.id = dm.itinerary_id AND dm.status = 1 
 		 LEFT JOIN destination d
 		 ON dm.destination_id = d.id 
-		 WHERE i.status = 1  AND i.post_id =  ?";
+		 WHERE i.status = 1  AND i.post_id =  ? GROUP BY travle_date";
 
         $query = $this->db->query($str, array($id));
 
@@ -268,7 +268,7 @@ class post_model extends My_Model {
             $itineraries = explode('#', $obj['itinerary']);
             $itinerary_request = array();
             $start_time = strtotime($obj['travle_start_time']);
-            foreach ($itineraries as $index => $item) {
+            foreach ($itineraries as $index => $itinerary) {
                 $travle_date = date('Y-m-d', strtotime("+{$index} day", $start_time));
                 $itinerary_request = array(
                     'post_id' => $id,
@@ -277,10 +277,10 @@ class post_model extends My_Model {
                 );
                 $this->db->insert('post_itinerary', $itinerary_request);
                 $itinerary_id = $this->db->insert_id();
-                $destination = explode(',', $item);
+                $destination = explode(',', $itinerary);
                 $destinations = array();
                 foreach ($destination as $d_item) {
-                    if (is_numeric($item)) {
+                    if (is_numeric($d_item)) {
                         $destinations[] = array(
                             'itinerary_id' => $itinerary_id,
                             'destination_id' => $d_item
