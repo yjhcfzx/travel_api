@@ -55,7 +55,8 @@ class post_model extends My_Model {
     function getList($param = null) {
         $user_id = isset($param['user_id']) ? $param['user_id'] : 0;
         $str = "SELECT p.*, u.name as author, GROUP_CONCAT(d.name SEPARATOR ', ') as destination FROM posts p LEFT JOIN users u ON p.uid = u.id "
-                . " LEFT JOIN post_destination pd ON p.id = pd.post_id LEFT JOIN destination d ON d.id = pd.destination_id WHERE p.status = 1 GROUP BY p.id ORDER BY p.id DESC";
+                . " LEFT JOIN post_destination pd ON p.id = pd.post_id LEFT JOIN destination d ON d.id = pd.destination_id WHERE p.status = 1 "
+                . " AND pd.`status` = 1 GROUP BY p.id ORDER BY p.id DESC";
         /* " p LEFT JOIN user_role r
           ON p.entity_id = r.entity_id AND r.entity_type = 'entity' AND r.is_deleted = 0 AND
           p.is_deleted = 0
@@ -140,55 +141,23 @@ class post_model extends My_Model {
     function updateDetail($obj) {
 
         $request = my_process_db_request($obj, $this->data, false);
-
+        $destination_mapping = array();
 
         $id = $request['id'];
         $remove_request = array('status' => 2);
         $this->db->update('post_destination', $remove_request, array('post_id' => $id));
 
         $this->db->update('post_event', $remove_request, array('post_id' => $id));
+        
+        $str = "UPDATE itinerary_destination SET status = 2
+        WHERE status = 1 AND itinerary_id IN
+        (SELECT id FROM post_itinerary WHERE post_id = ?)";
 
-        if ($obj['destination']) {
-            $destination = explode(',', $obj['destination']);
-            $destinations = array();
-            foreach ($destination as $item) {
-                if (is_numeric($item)) {
-                    $destinations[] = array(
-                        'post_id' => $id,
-                        'destination_id' => $item
-                    );
-                } else {
-                    $this->db->insert('destination', array('name' => $item));
-                    $item_id = $this->db->insert_id();
-                    $destinations[] = array(
-                        'post_id' => $id,
-                        'destination_id' => $item_id
-                    );
-                }
-            }
-            $this->db->insert_batch('post_destination', $destinations);
-        }
+        $query = $this->db->query($str,  array($id));
 
-        if ($obj['special_event']) {
-            $event = explode(',', $obj['special_event']);
-            $events = array();
-            foreach ($event as $item) {
-                if (is_numeric($item)) {
-                    $events[] = array(
-                        'post_id' => $id,
-                        'event_id' => $item
-                    );
-                } else {
-                    $this->db->insert('events', array('name' => $item));
-                    $item_id = $this->db->insert_id();
-                    $events[] = array(
-                        'post_id' => $id,
-                        'event_id' => $item_id
-                    );
-                }
-            }
-            $this->db->insert_batch('post_event', $events);
-        }
+        $this->db->update('post_itinerary', $remove_request, array('post_id' => $id));
+        
+         $this->insertRelation($obj, $destination_mapping,$id);
 
 
 
@@ -214,9 +183,15 @@ class post_model extends My_Model {
 
         $this->db->insert('posts', $request);
         $id = $this->db->insert_id();
+        $this->insertRelation($obj, $destination_mapping,$id);
 
+       
+        return $id;
+        //return $obj;
+    }
 
-        if ($obj['destination']) {
+    protected function insertRelation($obj,$destination_mapping, $id){
+         if ($obj['destination']) {
             $destination = explode(',', $obj['destination']);
             $destinations = array();
             foreach ($destination as $item) {
@@ -302,10 +277,7 @@ class post_model extends My_Model {
                 $this->db->insert_batch('itinerary_destination', $destinations);
             }
         }
-        return $id;
-        //return $obj;
     }
-
     function deleteDetail($id) {
         $id = intval($id);
         $remove_request = array('status' => 2);
