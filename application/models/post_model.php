@@ -54,9 +54,10 @@ class post_model extends My_Model {
 
     function getList($param = null) {
         $user_id = isset($param['user_id']) ? $param['user_id'] : 0;
+        $keyword = isset($param['keyword']) ? $param['keyword'] : NULL;
         $str = "SELECT p.*, u.name as author, GROUP_CONCAT(d.name SEPARATOR ', ') as destination FROM posts p LEFT JOIN users u ON p.uid = u.id "
                 . " LEFT JOIN post_destination pd ON p.id = pd.post_id LEFT JOIN destination d ON d.id = pd.destination_id WHERE p.status = 1 "
-                . " AND pd.`status` = 1 GROUP BY p.id ORDER BY p.id DESC";
+                . " AND pd.`status` = 1 ";
         /* " p LEFT JOIN user_role r
           ON p.entity_id = r.entity_id AND r.entity_type = 'entity' AND r.is_deleted = 0 AND
           p.is_deleted = 0
@@ -65,7 +66,24 @@ class post_model extends My_Model {
         if ($user_id) {
             //$str .= "AND r.user_id = ?";
         }
-        $query = $this->db->query($str);
+        $args = array();  
+        $str .= ' GROUP BY p.id ORDER BY p.id DESC';
+         if ($keyword) {
+           $keyword = mysql_real_escape_string($keyword);
+           $str =  "SELECT * FROM ( " . $str . " ) t WHERE t.destination like '%{$keyword}%'"; 
+            
+            // $str =  "SELECT * FROM ( " . $str . " ) t WHERE t.destination like '%°²»Õ%'";          //   var_dump($str);die;
+            //$args[] = $keyword;
+        }
+               
+        $args = count($args) ? $args : NULL;
+        if($args){
+             $query = $this->db->query($str,$args);
+        }
+        else{
+             $query = $this->db->query($str);
+        }
+     
         $resp = array();
         foreach ($query->result() as $row) {
             $resp[] = $row;
