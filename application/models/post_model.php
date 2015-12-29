@@ -41,6 +41,9 @@ class post_model extends My_Model {
             'required' => true,
             'type' => 'date'
         ),
+         'main_image' => array(
+            'type' => 'string',
+        ),
         'status' => array(
             'type' => 'int',
             'default' => 1
