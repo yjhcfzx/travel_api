@@ -95,6 +95,34 @@ class post_model extends My_Model {
         return $resp;
     }
 
+    function getRecent($param = null) {
+        $user_id = isset($param['user_id']) ? $param['user_id'] : 0;
+        $current = date("Y-m-d");
+        $str = "SELECT p.* FROM posts p  WHERE p.status = 1 ";
+      
+        if ($user_id) {
+            //$str .= "AND r.user_id = ?";
+        }
+        $args = array();  
+        $str .= "  ORDER BY ABS(TIMEDIFF(p.travle_start_time, '{$current}')) ASC LIMIT 10";
+       
+               
+        $args = count($args) ? $args : NULL;
+        if($args){
+             $query = $this->db->query($str,$args);
+        }
+        else{
+             $query = $this->db->query($str);
+        }
+     
+        $resp = array();
+        foreach ($query->result() as $row) {
+            $resp[] = $row;
+        }
+
+        return $resp;
+    }
+
     function getDetail($id) {
         /* if($user_id)
           {

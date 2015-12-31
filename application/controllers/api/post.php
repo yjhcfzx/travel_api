@@ -36,11 +36,19 @@ class Post extends REST_Controller
 		
                 $user_id = $this->get('user_id');
                 $keyword = $this->get('keyword');
+                $action = $this->get('action');
+                
                 $param = array('user_id'=>$user_id);
-                if($keyword){
-                    $param['keyword'] = $keyword;
+                //recent hot
+                if($action == 'recent'){
+                     $item = $this->model->getRecent($param);
                 }
-		$item = $this->model->getList($param);
+                else{
+                    if($keyword){
+                        $param['keyword'] = $keyword;
+                    }
+                    $item = $this->model->getList($param);
+                }
 		if($item)
 		{
 			$this->response($item, 200); // 200 being the HTTP response code
