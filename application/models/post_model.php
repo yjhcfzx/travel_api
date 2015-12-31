@@ -104,7 +104,7 @@ class post_model extends My_Model {
             //$str .= "AND r.user_id = ?";
         }
         $args = array();  
-        $str .= "  ORDER BY ABS(TIMEDIFF(p.travle_start_time, '{$current}')) ASC LIMIT 10";
+        $str .= "  ORDER BY ABS(DATEDIFF(p.travle_start_time, '{$current}')) ASC LIMIT 10";
        
                
         $args = count($args) ? $args : NULL;
