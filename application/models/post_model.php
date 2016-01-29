@@ -171,12 +171,13 @@ class post_model extends My_Model {
             $rst['special_events'][] = $row;
         }
 
-        $str = "SELECT i.*,GROUP_CONCAT(d.id SEPARATOR ', ')  as did, GROUP_CONCAT(d.name SEPARATOR ', ')  as dname FROM post_itinerary i
-		 LEFT JOIN itinerary_destination dm
-		 ON i.id = dm.itinerary_id AND dm.status = 1 
+        $str = "SELECT i.*, GROUP_CONCAT(d.name SEPARATOR ', ')  as dname FROM 
+
+post_itinerary pi
+                 LEFT JOIN itinerary_item i ON i.itinerary_id = pi.itinerary_id
 		 LEFT JOIN destination d
-		 ON dm.destination_id = d.id 
-		 WHERE i.status = 1  AND i.post_id =  ? GROUP BY travle_date";
+		 ON  FIND_IN_SET(d.id, i.destination) 
+		 WHERE pi.status = 1  AND pi.post_id =  ? GROUP BY i.id";
 
         $query = $this->db->query($str, array($id));
 
@@ -198,12 +199,6 @@ class post_model extends My_Model {
 
         $this->db->update('post_event', $remove_request, array('post_id' => $id));
         
-        $str = "UPDATE itinerary_destination SET status = 2
-        WHERE status = 1 AND itinerary_id IN
-        (SELECT id FROM post_itinerary WHERE post_id = ?)";
-
-        $query = $this->db->query($str,  array($id));
-
         $this->db->update('post_itinerary', $remove_request, array('post_id' => $id));
         
          $this->insertRelation($obj, $destination_mapping,$id);
@@ -289,26 +284,35 @@ class post_model extends My_Model {
         }
 
         if ($obj['itinerary']) {
+            $itinerary_request = array('content'=>'');
+            $this->db->insert('itinerary',$itinerary_request);
+            //new itinerary
+           
+           $itinerary_id = $this->db->insert_id();
+            //new itinerary mapping
+            $post_itinerary_request = array(
+                'post_id' => $id,
+                'itinerary_id' => $itinerary_id,
+                'travle_date'=> $obj['travle_start_time']
+            );
+            $this->db->insert('post_itinerary', $post_itinerary_request);
+            
             $itineraries = explode('#', $obj['itinerary']);
-            $itinerary_request = array();
+            $itinerary_items_request = array();
             $start_time = strtotime($obj['travle_start_time']);
             foreach ($itineraries as $index => $itinerary) {
                 $travle_date = date('Y-m-d', strtotime("+{$index} day", $start_time));
-                $itinerary_request = array(
-                    'post_id' => $id,
+                $itinerary_item_request = array(
+                     'itinerary_id' => $itinerary_id,
                     'index' => $index + 1,
                     'travle_date' => $travle_date
                 );
-                $this->db->insert('post_itinerary', $itinerary_request);
                 $itinerary_id = $this->db->insert_id();
                 $destination = explode(',', $itinerary);
                 $destinations = array();
                 foreach ($destination as $d_item) {
                     if (is_numeric($d_item)) {
-                        $destinations[] = array(
-                            'itinerary_id' => $itinerary_id,
-                            'destination_id' => $d_item
-                        );
+                        $destinations[] = $d_item;
                     } else {
                         if (isset($destination_mapping[$d_item])) {
                             $item_id = $destination_mapping[$d_item];
@@ -317,14 +321,13 @@ class post_model extends My_Model {
                             $item_id = $this->db->insert_id();
                             $destination_mapping[$d_item] = $item_id;
                         }
-                        $destinations[] = array(
-                            'itinerary_id' => $itinerary_id,
-                            'destination_id' => $item_id
-                        );
+                        $destinations[] = $item_id;
                     }
                 }
-                $this->db->insert_batch('itinerary_destination', $destinations);
+                $itinerary_item_request['destination'] = implode(',', $destinations);
+                $itinerary_items_request[] = $itinerary_item_request; 
             }
+            $this->db->insert_batch('itinerary_item', $itinerary_items_request);
         }
     }
     function deleteDetail($id) {
