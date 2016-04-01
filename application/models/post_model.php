@@ -171,14 +171,17 @@ class post_model extends My_Model {
             $rst['special_events'][] = $row;
         }
 
-        $str = "SELECT i.*, GROUP_CONCAT(d.name SEPARATOR ', ')  as dname FROM 
+        $str = "SELECT i.*, GROUP_CONCAT(d.name SEPARATOR ', ')  as dname, GROUP_CONCAT(h.name SEPARATOR ', ')  as hname FROM 
 
 post_itinerary pi
                  LEFT JOIN itinerary_item i ON i.itinerary_id = pi.itinerary_id
 		 LEFT JOIN destination d
 		 ON  FIND_IN_SET(d.id, i.destination) 
+                 LEFT JOIN hosts h
+		 ON  FIND_IN_SET(h.id, i.host) 
 		 WHERE pi.status = 1  AND pi.post_id =  ? GROUP BY i.id";
 
+        
         $query = $this->db->query($str, array($id));
 
         foreach ($query->result() as $row) {
@@ -211,6 +214,7 @@ post_itinerary pi
     }
 
     function createDetail($obj) {
+       
         //$obj = parse_str($obj);
         $request = my_process_db_request($obj, $this->data, false);
 
@@ -235,6 +239,7 @@ post_itinerary pi
     }
 
     protected function insertRelation($obj,$destination_mapping, $id){
+       
          if ($obj['destination']) {
             $destination = explode(',', $obj['destination']);
             $destinations = array();
@@ -282,6 +287,39 @@ post_itinerary pi
             }
             $this->db->insert_batch('post_event', $events);
         }
+        
+          if ($obj['host']) {
+            $host_mapping = array();
+            $host = explode(',', $obj['host']);
+            $hosts = array();
+            foreach ($host as $item) {
+                if(!$item)
+                {
+                    continue;
+                }
+                if (is_numeric($item)) {
+                    $hosts[] = array(
+                        'post_id' => $id,
+                        'host_id' => $item
+                    );
+                } else {
+                    //get id by name
+                    if (isset($host_mapping[$item])) {
+                        $item_id = $host_mapping[$item];
+                    } else {
+                        $this->db->insert('hosts', array('name' => $item));
+                        $item_id = $this->db->insert_id();
+                        $host_mapping[$item] = $item_id;
+                    }
+
+                    $hosts[] = array(
+                        'post_id' => $id,
+                        'destination_id' => $item_id
+                    );
+                }
+            }
+           // $this->db->insert_batch('post_destination', $destinations);
+        }
 
         if ($obj['itinerary']) {
             $itinerary_request = array('content'=>'');
@@ -307,9 +345,11 @@ post_itinerary pi
                     'index' => $index + 1,
                     'travle_date' => $travle_date
                 );
-                $itinerary_id = $this->db->insert_id();
-                $destination = explode(',', $itinerary);
+                $filds = explode('||',$itinerary);
+                $destination = explode(',', $filds[0]);
+                $host = explode(',', $filds[1]);
                 $destinations = array();
+                $hosts = array();
                 foreach ($destination as $d_item) {
                     if (is_numeric($d_item)) {
                         $destinations[] = $d_item;
@@ -324,9 +364,30 @@ post_itinerary pi
                         $destinations[] = $item_id;
                     }
                 }
+                
+                foreach ($host as $d_item) {
+                     if(!$d_item)
+                    {
+                        continue;
+                    }
+                    if (is_numeric($d_item)) {
+                        $hosts[] = $d_item;
+                    } else {
+                        if (isset($host_mapping[$d_item])) {
+                            $item_id = $host_mapping[$d_item];
+                        } else {
+                            $this->db->insert('hosts', array('name' => $d_item));
+                            $item_id = $this->db->insert_id();
+                            $host_mapping[$d_item] = $item_id;
+                        }
+                        $hosts[] = $item_id;
+                    }
+                }
                 $itinerary_item_request['destination'] = implode(',', $destinations);
+                $itinerary_item_request['host'] = implode(',', $hosts);
                 $itinerary_items_request[] = $itinerary_item_request; 
             }
+            //return array(json_encode($itineraries),json_encode($itinerary_items_request));
             $this->db->insert_batch('itinerary_item', $itinerary_items_request);
         }
     }
